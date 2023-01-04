@@ -5,9 +5,6 @@
 #include <mutex>
 #include <queue>
 
-// qt
-#include <QtCore/QByteArray>
-
 
 
 class BufferBlock
@@ -16,25 +13,25 @@ public:
     BufferBlock(int64_t nbytes);
     ~BufferBlock();
 
-    // -0xffffÎªpBufferÎŞĞ§»òÕßnbytesÎŞĞ§£¬0ÖµÎªÃ»ÓĞ¿É¹©¶ÁÈ¡µÄÊı¾İ£¬ÕıÖµÎª¶ÁÈ¡µÄÊı¾İ´óĞ¡
+    // -0xffffä¸ºpBufferæ— æ•ˆæˆ–è€…nbytesæ— æ•ˆï¼Œ0å€¼ä¸ºæ²¡æœ‰å¯ä¾›è¯»å–çš„æ•°æ®ï¼Œæ­£å€¼ä¸ºè¯»å–çš„æ•°æ®å¤§å°
     int64_t Read(uint8_t *pBuffer, int64_t nbytes);
-    // -0xffffÎªpContentÎŞĞ§»òÕßnbytesÎŞĞ§£¬0ÖµÎªÃ»ÓĞ¿É¹©Ğ´ÈëµÄ¿Õ¼ä£¬ÕıÖµÎªĞ´ÈëµÄÊı¾İ´óĞ¡
+    // -0xffffä¸ºpContentæ— æ•ˆæˆ–è€…nbytesæ— æ•ˆï¼Œ0å€¼ä¸ºæ²¡æœ‰å¯ä¾›å†™å…¥çš„ç©ºé—´ï¼Œæ­£å€¼ä¸ºå†™å…¥çš„æ•°æ®å¤§å°
     int64_t Write(uint8_t *pContent, int64_t nbytes);
 
-    // Ã»ÓĞ¿É¹©Ğ´ÈëµÄ¿Õ¼ä£¬¿ª±ÙĞÂ¿é
+    // æ²¡æœ‰å¯ä¾›å†™å…¥çš„ç©ºé—´ï¼Œå¼€è¾Ÿæ–°å—
     bool IsNeedWriteNewBlock();
-    // Ã»ÓĞ¿É¹©¶ÁÈ¡µÄÊı¾İ£¬¶ÁĞÂ¿é£¬´Ë¿é¿ÉÒÔÇåÀí
+    // æ²¡æœ‰å¯ä¾›è¯»å–çš„æ•°æ®ï¼Œè¯»æ–°å—ï¼Œæ­¤å—å¯ä»¥æ¸…ç†
     bool IsNeedReadNewBlock();
 
 
 private:
-    // ¿é´óĞ¡
+    // å—å¤§å°
     int64_t m_nbytes;
-    // ¿é´æ´¢
+    // å—å­˜å‚¨
     uint8_t *m_pBuffer;
-    // ¶ÁÆ«ÒÆ
+    // è¯»åç§»
     int64_t m_nReadOffset;
-    // Ğ´Æ«ÒÆ
+    // å†™åç§»
     int64_t m_nWriteOffset;
 };
 
@@ -46,29 +43,27 @@ public:
     ChainBuffer(int64_t nbytes);
     ~ChainBuffer();
 
-    // ÉèÖÃÒ»¸ö¿éµÄ´óĞ¡
+    // è®¾ç½®ä¸€ä¸ªå—çš„å¤§å°
     void SetMaxBytes(int64_t nbytes);
 
-    // -0xffffÎªpBufferÎŞĞ§»òÕßnbytesÎŞĞ§£¬ÆäËü¸ºÖµÎªmemcpy_s´íÎóÂë£¬0ÖµÎªÃ»ÓĞ¿É¹©¶ÁÈ¡µÄÊı¾İ£¬ÕıÖµÎª¶ÁÈ¡µÄÊı¾İ´óĞ¡
-    int64_t Read(QByteArray &buf);
+    // -0xffffä¸ºpBufferæ— æ•ˆæˆ–è€…nbytesæ— æ•ˆï¼Œå…¶å®ƒè´Ÿå€¼ä¸ºmemcpy_sé”™è¯¯ç ï¼Œ0å€¼ä¸ºæ²¡æœ‰å¯ä¾›è¯»å–çš„æ•°æ®ï¼Œæ­£å€¼ä¸ºè¯»å–çš„æ•°æ®å¤§å°
     int64_t Read(uint8_t *pBuffer, int64_t nbytes);
-    // -0xffffÎªpContentÎŞĞ§»òÕßnbytesÎŞĞ§£¬ÆäËü¸ºÖµÎªmemcpy_s´íÎóÂë£¬0ÖµÎªÃ»ÓĞ¿É¹©Ğ´ÈëµÄ¿Õ¼ä£¬ÕıÖµÎªĞ´ÈëµÄÊı¾İ´óĞ¡
-    int64_t Write(QByteArray &buf);
+    // -0xffffä¸ºpContentæ— æ•ˆæˆ–è€…nbytesæ— æ•ˆï¼Œå…¶å®ƒè´Ÿå€¼ä¸ºmemcpy_sé”™è¯¯ç ï¼Œ0å€¼ä¸ºæ²¡æœ‰å¯ä¾›å†™å…¥çš„ç©ºé—´ï¼Œæ­£å€¼ä¸ºå†™å…¥çš„æ•°æ®å¤§å°
     int64_t Write(uint8_t *pContent, int64_t nbytes);
 
 protected:
-    // É¾³ıÒÑ¶Á¿é
+    // åˆ é™¤å·²è¯»å—
     bool Pop();
-    // ¿ª±ÙĞÂµÄ¿Õ¿é
+    // å¼€è¾Ÿæ–°çš„ç©ºå—
     void Push();
 
 private:
-    // ¿é´óĞ¡
+    // å—å¤§å°
     int64_t m_nbytes;
 
-    // ¶ÁĞ´Ëø
+    // è¯»å†™é”
     std::mutex m_mutex;
 
-    // ¿é´æ´¢Á´
+    // å—å­˜å‚¨é“¾
     std::queue<BufferBlock *> m_buffers;
 };
