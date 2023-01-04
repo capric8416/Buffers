@@ -1,9 +1,6 @@
 // self
 #include "buffer.h"
 
-// project
-#include "../logger/logger.h"
-
 // c/c++
 #include <algorithm>
 #include <thread>
@@ -36,21 +33,21 @@ BufferBlock::~BufferBlock()
 
 int64_t BufferBlock::Read(uint8_t *pBuffer, int64_t nbytes)
 {
-    // ÎŞĞè¶ÁÈ¡
+    // æ— éœ€è¯»å–
     if (pBuffer == nullptr || nbytes <= 0) {
         return -0xffff;
     }
 
-    // Ã»ÓĞ¿É¹©¶ÁÈ¡µÄÊı¾İ£¬Èç¹û¿Õ¼äÒÑÂú£¬ĞèÒª¶ÁĞÂ¿é£¬·ñÔòÖ±½Ó½áÊø
+    // æ²¡æœ‰å¯ä¾›è¯»å–çš„æ•°æ®ï¼Œå¦‚æœç©ºé—´å·²æ»¡ï¼Œéœ€è¦è¯»æ–°å—ï¼Œå¦åˆ™ç›´æ¥ç»“æŸ
     if (m_nReadOffset == m_nWriteOffset) {
         return 0;
     }
 
-    // min(¿É¹©¶ÁÈ¡µÄ´óĞ¡, ´ı¶ÁÈ¡µÄ´óĞ¡)
+    // min(å¯ä¾›è¯»å–çš„å¤§å°, å¾…è¯»å–çš„å¤§å°)
     int64_t available = m_nWriteOffset - m_nReadOffset;
     int64_t read = std::min(available, nbytes);
 
-    // ¶ÁÈ¡Êı¾İ£¬µ±·µ»ØÖµĞ¡ÓÚ´ı¶ÁÈ¡µÄ´óĞ¡£¬ĞèÒª¶ÁĞÂµÄ¿é
+    // è¯»å–æ•°æ®ï¼Œå½“è¿”å›å€¼å°äºå¾…è¯»å–çš„å¤§å°ï¼Œéœ€è¦è¯»æ–°çš„å—
     uint8_t *addr = m_pBuffer + m_nReadOffset;
     errno_t error = memcpy_s(pBuffer, nbytes, addr, read);
     if (0 == error) {
@@ -58,28 +55,28 @@ int64_t BufferBlock::Read(uint8_t *pBuffer, int64_t nbytes)
         return read;
     }
 
-    // µ±·µ»ØÖµÎª¸ºÖµÊ±£¬È¡·´¿ÉµÃmemcpy_s´íÎóÂë
+    // å½“è¿”å›å€¼ä¸ºè´Ÿå€¼æ—¶ï¼Œå–åå¯å¾—memcpy_sé”™è¯¯ç 
     return -error;
 }
 
 
 int64_t BufferBlock::Write(uint8_t *pContent, int64_t nbytes)
 {
-    // ÎŞĞèĞ´Èë
+    // æ— éœ€å†™å…¥
     if (pContent == nullptr || nbytes <= 0) {
         return -0xffff;
     }
 
-    // ¿Õ¼äÒÑÂú£¬ĞèÒª¿ª±ÙĞÂ¿é
+    // ç©ºé—´å·²æ»¡ï¼Œéœ€è¦å¼€è¾Ÿæ–°å—
     if (m_nWriteOffset == m_nbytes) {
         return 0;
     }
 
-    // min(¿ÕÏĞ¿Õ¼ä, ´ıÈëµÄ´óĞ¡)
+    // min(ç©ºé—²ç©ºé—´, å¾…å…¥çš„å¤§å°)
     int64_t available = m_nbytes - m_nWriteOffset;
     int64_t written = std::min(available, nbytes);
 
-    // Ğ´ÈëÊı¾İ£¬µ±·µ»ØÖµĞ¡ÓÚ´ıĞ´ÈëµÄ´óĞ¡£¬ĞèÒª¿ª±ÙĞÂ¿é
+    // å†™å…¥æ•°æ®ï¼Œå½“è¿”å›å€¼å°äºå¾…å†™å…¥çš„å¤§å°ï¼Œéœ€è¦å¼€è¾Ÿæ–°å—
     uint8_t *addr = m_pBuffer + m_nWriteOffset;
     errno_t error = memcpy_s(addr, available, pContent, written);
     if (0 == error) {
@@ -87,21 +84,21 @@ int64_t BufferBlock::Write(uint8_t *pContent, int64_t nbytes)
         return written;
     }
 
-    // µ±·µ»ØÖµÎª¸ºÖµÊ±£¬È¡·´¿ÉµÃmemcpy_s´íÎóÂë
+    // å½“è¿”å›å€¼ä¸ºè´Ÿå€¼æ—¶ï¼Œå–åå¯å¾—memcpy_sé”™è¯¯ç 
     return -error;
 }
 
 
 bool BufferBlock::IsNeedWriteNewBlock()
 {
-    // Ğ´ÂúÁË
+    // å†™æ»¡äº†
     return m_nWriteOffset == m_nbytes;
 }
 
 
 bool BufferBlock::IsNeedReadNewBlock()
 {
-    // ¶ÁÍêÁË
+    // è¯»å®Œäº†
     return m_nReadOffset == m_nbytes;
 }
 
@@ -138,17 +135,11 @@ void ChainBuffer::SetMaxBytes(int64_t nbytes)
 }
 
 
-int64_t ChainBuffer::Read(QByteArray &buf)
-{
-    return Read((uint8_t *)buf.data(), buf.size());
-}
-
-
 int64_t ChainBuffer::Read(uint8_t *pBuffer, int64_t nbytes)
 {
     std::lock_guard<std::mutex> locker(m_mutex);
 
-    // Ã»ÓĞÊı¾İ¿É¹©¶ÁÈ¡
+    // æ²¡æœ‰æ•°æ®å¯ä¾›è¯»å–
     if (m_buffers.empty()) {
         return -1;
     }
@@ -158,20 +149,18 @@ int64_t ChainBuffer::Read(uint8_t *pBuffer, int64_t nbytes)
     while (nbytes > 0) {
         int64_t count = m_buffers.front()->Read(pBuffer + read, nbytes);
         if (count < 0) {
-            LogInfoC("read error: %lld\n", count);
-
-            // ¼ì²é´íÎó
+            // æ£€æŸ¥é”™è¯¯
             return count;
         }
         else if (count == 0) {
-            // ÕâÀï¿ÉÄÜÖ»ÊÇ¶Á×·ÉÏĞ´ÁË
+            // è¿™é‡Œå¯èƒ½åªæ˜¯è¯»è¿½ä¸Šå†™äº†
             poped = Pop();
         }
 
         nbytes -= count;
         read += count;
 
-        // Ã»ÓĞĞÂµÄ¿é¿É¹©¶ÁÈ¡ÁË£¬»òÕß½öÓĞÒ»¸ö¿éµ«¶Á×·ÉÏĞ´ÁË
+        // æ²¡æœ‰æ–°çš„å—å¯ä¾›è¯»å–äº†ï¼Œæˆ–è€…ä»…æœ‰ä¸€ä¸ªå—ä½†è¯»è¿½ä¸Šå†™äº†
         if ((m_buffers.empty()) || (count == 0 && !poped && m_buffers.size() == 1)) {
             break;
         }
@@ -181,17 +170,11 @@ int64_t ChainBuffer::Read(uint8_t *pBuffer, int64_t nbytes)
 }
 
 
-int64_t ChainBuffer::Write(QByteArray &buf)
-{
-    return Write((uint8_t *)buf.data(), buf.size());
-}
-
-
 int64_t ChainBuffer::Write(uint8_t *pContent, int64_t nbytes)
 {
     std::lock_guard<std::mutex> locker(m_mutex);
 
-    // ¿ª±ÙĞÂµÄ¿é
+    // å¼€è¾Ÿæ–°çš„å—
     if (m_buffers.empty()) {
         Push();
     }
@@ -200,13 +183,11 @@ int64_t ChainBuffer::Write(uint8_t *pContent, int64_t nbytes)
     while (nbytes > 0) {
         int64_t count = m_buffers.back()->Write(pContent + written, nbytes);
         if (count < 0) {
-            LogInfoC("write error: %lld\n", count);
-
-            // ¼ì²é´íÎó
+            // æ£€æŸ¥é”™è¯¯
             return count;
         }
         else if (count == 0) {
-            // ¿ª±ÙĞÂµÄ¿é
+            // å¼€è¾Ÿæ–°çš„å—
             Push();
         }
 
@@ -224,9 +205,7 @@ bool ChainBuffer::Pop()
         return false;
     }
 
-    LogInfoC("read next buffer\n");
-
-    // É¾³ıÒÑ¶ÁµÄ¿é
+    // åˆ é™¤å·²è¯»çš„å—
     delete m_buffers.front();
     m_buffers.pop();
 
@@ -236,9 +215,7 @@ bool ChainBuffer::Pop()
 
 void ChainBuffer::Push()
 {
-    LogInfoC("write next buffer\n");
-
-    // ¿ª±ÙĞÂµÄ¿Õ¿é
+    // å¼€è¾Ÿæ–°çš„ç©ºå—
     m_buffers.push(new BufferBlock(m_nbytes));
 }
 
